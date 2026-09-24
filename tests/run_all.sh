@@ -28,6 +28,7 @@ run_test "Combat Balance" "tests/test_combat_balance.luau"
 run_test "Economy" "tests/test_economy.luau"
 run_test "GlitchMeter" "tests/test_glitch_meter.luau"
 run_test "WeaponUpgrade" "tests/test_weapon_upgrade.luau"
+run_test "DamageCalculator" "tests/test_damage_calculator.luau"
 
 echo "================================"
 echo "  Файлов прошло: $total_passed"
