@@ -8,18 +8,18 @@ local DialogueSystem = require(script.Parent.Modules:WaitForChild("DialogueSyste
 local RaidManager = require(script.Parent.Modules:WaitForChild("RaidManager"))
 local BossController = require(script.Parent.Modules:WaitForChild("BossController"))
 local GachaAltar = require(script.Parent.Modules:WaitForChild("GachaAltar"))
+local UpgradeAltar = require(script.Parent.Modules:WaitForChild("UpgradeAltar"))
 local WorldBuilder = require(script.Parent.Modules:WaitForChild("WorldBuilder"))
 local GlitchController = require(script.Parent.Modules:WaitForChild("GlitchController"))
 
--- CombatHandler подписывается на RemoteEvents
 require(script.Parent.Modules:WaitForChild("CombatHandler"))
 
 local HUB_SPAWN = Vector3.new(0, 5, 0)
 local RAID_SPAWN = Vector3.new(100, 5, 0)
 
--- Строим мир один раз при старте сервера
 WorldBuilder.build()
 GachaAltar.start()
+UpgradeAltar.start()
 
 local function teleportPlayer(player, position)
 	local character = player.Character
@@ -48,8 +48,6 @@ Players.PlayerAdded:Connect(function(player)
 		end
 
 		teleportPlayer(player, HUB_SPAWN)
-
-		-- В хабе шкала Глитча не растёт
 		GlitchController.resetFor(player)
 
 		if data.equippedWeapon then
@@ -58,20 +56,16 @@ Players.PlayerAdded:Connect(function(player)
 		end
 	end)
 
-	-- Кнопка «Взять квест»
 	RemoteEvents.GiveQuest.OnServerEvent:Connect(function()
 		if RaidManager.isActive(player) then return end
 
 		teleportPlayer(player, RAID_SPAWN)
 		task.wait(0.5)
 
-		-- В рейде шкала начинает расти
 		GlitchController.startFor(player)
 
 		RaidManager.startRaid(player, function()
 			RemoteEvents.CompleteQuest:FireClient(player)
-
-			-- Рейд закончен — останавливаем рост и обнуляем
 			GlitchController.stopFor(player)
 			GlitchController.resetFor(player)
 
