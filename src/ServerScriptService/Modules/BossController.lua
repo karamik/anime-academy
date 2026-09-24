@@ -2,7 +2,7 @@ local Players = game:GetService("Players")
 
 local BossController = {}
 
-local BOSS_MAX_HEALTH = 2500
+local BOSS_MAX_HEALTH = 8000
 local PHASE_2_THRESHOLD = 0.6
 local SPAWN_POSITION = Vector3.new(100, 8, 0)
 local TENTACLE_DAMAGE = 15
