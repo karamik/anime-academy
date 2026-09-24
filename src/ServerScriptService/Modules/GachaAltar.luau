@@ -1,3 +1,5 @@
+-- Gacha altar: touch to roll a random weapon. All strings in English.
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -8,7 +10,7 @@ local DialogueSystem = require(script.Parent:WaitForChild("DialogueSystem"))
 
 local GachaAltar = {}
 
-local ALTAR_POSITION = Vector3.new(0, 5, 10)
+local ALTAR_POSITION = Vector3.new(15, 5, 10)
 local ALTAR_SIZE = Vector3.new(4, 1, 4)
 local COOLDOWN = 5
 
@@ -33,6 +35,19 @@ local function createAltar()
 	light.Brightness = 2
 	light.Parent = altar
 
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = Enum.NormalId.Top
+	gui.Parent = altar
+
+	local text = Instance.new("TextLabel")
+	text.Size = UDim2.new(1, 0, 1, 0)
+	text.BackgroundTransparency = 1
+	text.TextColor3 = Color3.fromRGB(255, 255, 255)
+	text.Font = Enum.Font.GothamBold
+	text.TextScaled = true
+	text.Text = "GACHA"
+	text.Parent = gui
+
 	return altar
 end
 
@@ -52,7 +67,7 @@ local function rollWeapon(player)
 	WeaponSystem.equipWeapon(player, weaponId)
 	DialogueSystem.speak(player, "onEquip")
 
-	print("[Гача] Игрок", player.Name, "получил", weaponId)
+	print("[Gacha] " .. player.Name .. " rolled " .. weaponId)
 end
 
 function GachaAltar.start()

@@ -1,3 +1,5 @@
+-- Upgrade altar: touch to upgrade equipped weapon. All strings in English.
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -41,7 +43,7 @@ local function createAltar()
 	text.TextColor3 = Color3.fromRGB(255, 255, 255)
 	text.Font = Enum.Font.GothamBold
 	text.TextScaled = true
-	text.Text = "АПГРЕЙД"
+	text.Text = "UPGRADE"
 	text.Parent = gui
 
 	return altar
@@ -62,9 +64,8 @@ local function tryUpgrade(player)
 
 	local newLevel, newCredits = WeaponUpgrade.upgrade(currentLevel, credits)
 	if not newLevel then
-		-- Либо максимум, либо не хватает денег
 		if currentLevel >= WeaponUpgrade.MAX_LEVEL then
-			DialogueSystem.speak(player, "onLowHP") -- заглушка
+			DialogueSystem.speak(player, "onLowHP")
 		end
 		return
 	end
@@ -72,11 +73,10 @@ local function tryUpgrade(player)
 	DataStoreManager.setWeaponLevel(player, weaponId, newLevel)
 	DataStoreManager.spendCredits(player, credits - newCredits)
 
-	-- Переэкипировать, чтобы новая сила вступила в силу
 	WeaponSystem.equipWeapon(player, weaponId)
 
-	DialogueSystem.speak(player, "onKill") -- заглушка: крик радости
-	print(string.format("[Апгрейд] %s поднял %s до ур.%d", player.Name, weaponId, newLevel))
+	DialogueSystem.speak(player, "onKill")
+	print(string.format("[Upgrade] %s upgraded %s to level %d", player.Name, weaponId, newLevel))
 end
 
 function UpgradeAltar.start()

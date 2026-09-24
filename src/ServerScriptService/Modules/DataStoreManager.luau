@@ -1,3 +1,5 @@
+-- Player data persistence. All strings in English.
+
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 
@@ -44,7 +46,7 @@ local function loadData(player)
 	end
 
 	if not success then
-		warn("[DataStore] Ошибка загрузки для", player.Name, ":", result)
+		warn("[DataStore] Load failed for", player.Name, ":", result)
 	end
 
 	return deepCopy(DEFAULT_DATA)
@@ -60,7 +62,7 @@ local function saveData(player)
 	end)
 
 	if not success then
-		warn("[DataStore] Ошибка сохранения для", player.Name, ":", err)
+		warn("[DataStore] Save failed for", player.Name, ":", err)
 	end
 end
 
@@ -135,7 +137,7 @@ end
 
 Players.PlayerAdded:Connect(function(player)
 	cache[player.UserId] = loadData(player)
-	print("[DataStore] Загружено для", player.Name)
+	print("[DataStore] Loaded for", player.Name)
 end)
 
 Players.PlayerRemoving:Connect(function(player)

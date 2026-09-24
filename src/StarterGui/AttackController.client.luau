@@ -1,3 +1,5 @@
+-- Attack controller. All strings in English.
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,7 +17,7 @@ local function attack()
 	RemoteEvents.UseAbility:FireServer()
 end
 
--- ПК: левая кнопка мыши
+-- PC: left mouse button
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed then return end
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -23,7 +25,7 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 end)
 
--- Мобилка: кнопка на экране
+-- Mobile: on-screen button
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AttackGui"
 screenGui.ResetOnSpawn = false
@@ -35,7 +37,7 @@ button.Size = UDim2.new(0, 120, 0, 120)
 button.Position = UDim2.new(1, -150, 1, -150)
 button.BackgroundColor3 = Color3.fromRGB(180, 40, 60)
 button.TextColor3 = Color3.fromRGB(255, 255, 255)
-button.Text = "АТАКА"
+button.Text = "ATTACK"
 button.TextScaled = true
 button.Font = Enum.Font.GothamBold
 button.Visible = false
@@ -45,13 +47,9 @@ local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(1, 0)
 corner.Parent = button
 
--- Показать кнопку только на мобилке
 if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then
 	button.Visible = true
 end
 
 button.MouseButton1Click:Connect(attack)
 button.TouchLongPress:Connect(attack)
-</｜｜DSML｜｜ parameter>
-</｜｜DSML｜｜ invoke>
-</invoke>

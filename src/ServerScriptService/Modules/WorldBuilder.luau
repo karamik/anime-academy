@@ -1,3 +1,5 @@
+-- Builds the hub and raid arena. All strings in English.
+
 local WorldBuilder = {}
 
 local function makePart(name, size, position, color, parent)
@@ -25,31 +27,28 @@ local function makeSpawn(position)
 end
 
 function WorldBuilder.build()
-	-- Хаб: пол 80x80 в центре
+	-- Hub
 	makePart("HubFloor", Vector3.new(80, 2, 80), Vector3.new(0, 3, 0), Color3.fromRGB(40, 45, 60))
 
-	-- Стены хаба (низкие, чтобы видеть)
 	makePart("HubWall_N", Vector3.new(80, 8, 2), Vector3.new(0, 7, -40), Color3.fromRGB(30, 35, 50))
 	makePart("HubWall_S", Vector3.new(80, 8, 2), Vector3.new(0, 7, 40), Color3.fromRGB(30, 35, 50))
 	makePart("HubWall_W", Vector3.new(2, 8, 80), Vector3.new(-40, 7, 0), Color3.fromRGB(30, 35, 50))
 	makePart("HubWall_E", Vector3.new(2, 8, 80), Vector3.new(40, 7, 0), Color3.fromRGB(30, 35, 50))
 
-	-- Точка спавна в хабе
 	makeSpawn(Vector3.new(0, 5, 0))
 
-	-- Арена босса и рейда: пол 80x80 на (100, 0)
+	-- Raid arena
 	makePart("RaidFloor", Vector3.new(80, 2, 80), Vector3.new(100, 3, 0), Color3.fromRGB(50, 25, 40))
 
-	-- Стены арены
 	makePart("RaidWall_N", Vector3.new(80, 12, 2), Vector3.new(100, 8, -40), Color3.fromRGB(40, 15, 30))
 	makePart("RaidWall_S", Vector3.new(80, 12, 2), Vector3.new(100, 8, 40), Color3.fromRGB(40, 15, 30))
 	makePart("RaidWall_W", Vector3.new(2, 12, 80), Vector3.new(60, 8, 0), Color3.fromRGB(40, 15, 30))
 	makePart("RaidWall_E", Vector3.new(2, 12, 80), Vector3.new(140, 8, 0), Color3.fromRGB(40, 15, 30))
 
-	-- Мост между хабом и ареной
+	-- Bridge
 	makePart("Bridge", Vector3.new(20, 2, 6), Vector3.new(50, 3, 0), Color3.fromRGB(60, 60, 80))
 
-	-- Указатель на арену
+	-- Sign
 	local sign = Instance.new("Part")
 	sign.Name = "RaidSign"
 	sign.Size = Vector3.new(10, 4, 1)
@@ -69,10 +68,10 @@ function WorldBuilder.build()
 	text.TextColor3 = Color3.fromRGB(255, 255, 255)
 	text.Font = Enum.Font.GothamBold
 	text.TextScaled = true
-	text.Text = "РЕЙД →"
+	text.Text = "RAID →"
 	text.Parent = gui
 
-	-- Освещение
+	-- Lighting
 	local lighting = game:GetService("Lighting")
 	lighting.Ambient = Color3.fromRGB(80, 80, 100)
 	lighting.OutdoorAmbient = Color3.fromRGB(60, 60, 80)

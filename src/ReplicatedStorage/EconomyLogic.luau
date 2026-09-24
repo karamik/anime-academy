@@ -1,26 +1,26 @@
--- Чистая логика экономики. Без Roblox-зависимостей.
--- Позже используется магазином, гачей за кредиты и апгрейдами.
+-- Economy logic. Pure logic, no Roblox dependencies.
+-- Used later by shop, gacha rolls, and weapon upgrades.
 
 local EconomyLogic = {}
 
--- Награды за убийства и рейды
+-- Rewards for kills and raids
 EconomyLogic.Rewards = {
-	droneKill = 10,        -- кредитов за одного дрона
-	bossKill = 100,        -- кредитов за босса
-	raidComplete = 50,     -- бонус за полное прохождение
+	droneKill = 10,        -- credits per drone
+	bossKill = 100,        -- credits per boss
+	raidComplete = 50,     -- bonus for full clear
 	glitchCodePerDrone = 1,
 	glitchCodePerBoss = 5,
 }
 
--- Цены в магазине
+-- Shop prices
 EconomyLogic.Prices = {
-	gachaRoll = 200,           -- одна крутка оружия
-	weaponUpgradeTier1 = 300,  -- апгрейд +1
-	weaponUpgradeTier2 = 600,  -- апгрейд +2
-	weaponUpgradeTier3 = 1200, -- апгрейд +3
+	gachaRoll = 200,           -- one weapon roll
+	weaponUpgradeTier1 = 300,  -- upgrade +1
+	weaponUpgradeTier2 = 600,  -- upgrade +2
+	weaponUpgradeTier3 = 1200, -- upgrade +3
 }
 
--- Сколько кредитов дать за убийство врага
+-- Credits granted for killing an enemy
 function EconomyLogic.rewardForKill(enemyType)
 	if enemyType == "drone" then
 		return EconomyLogic.Rewards.droneKill
@@ -30,7 +30,7 @@ function EconomyLogic.rewardForKill(enemyType)
 	return 0
 end
 
--- Итоговая награда за рейд (все дроны + босс + бонус)
+-- Total reward for a full raid (all drones + boss + bonus)
 function EconomyLogic.rewardForRaid(droneCount, hasBoss)
 	local total = droneCount * EconomyLogic.Rewards.droneKill
 	if hasBoss then
@@ -40,7 +40,7 @@ function EconomyLogic.rewardForRaid(droneCount, hasBoss)
 	return total
 end
 
--- Глитч-коды за рейд
+-- Glitch codes for a raid
 function EconomyLogic.glitchCodeForRaid(droneCount, hasBoss)
 	local total = droneCount * EconomyLogic.Rewards.glitchCodePerDrone
 	if hasBoss then
@@ -49,14 +49,14 @@ function EconomyLogic.glitchCodeForRaid(droneCount, hasBoss)
 	return total
 end
 
--- Хватает ли кредитов на покупку
+-- Can the player afford an item
 function EconomyLogic.canAfford(credits, itemId)
 	local price = EconomyLogic.Prices[itemId]
 	if not price then return false end
 	return credits >= price
 end
 
--- Купить: возвращает новое количество кредитов или nil
+-- Purchase: returns new credit balance or nil
 function EconomyLogic.purchase(credits, itemId)
 	if not EconomyLogic.canAfford(credits, itemId) then
 		return nil
@@ -64,7 +64,7 @@ function EconomyLogic.purchase(credits, itemId)
 	return credits - EconomyLogic.Prices[itemId]
 end
 
--- Сколько рейдов нужно на покупку
+-- Raids needed to afford an item
 function EconomyLogic.raidsNeededFor(itemId, droneCount, hasBoss)
 	local price = EconomyLogic.Prices[itemId]
 	if not price then return nil end

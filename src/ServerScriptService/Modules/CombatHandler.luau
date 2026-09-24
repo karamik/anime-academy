@@ -1,3 +1,5 @@
+-- Server-side combat logic. All strings in English.
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -80,7 +82,6 @@ RemoteEvents.UseAbility.OnServerEvent:Connect(function(player)
 	local target = getTargetFromRay(origin, direction, config.range)
 
 	if target then
-		-- Считаем урон через DamageCalculator
 		local level = getWeaponLevel(player, config.id)
 		local glitch = getGlitchValue(player)
 		local damage = DamageCalculator.calculate(config.damage, level, glitch)

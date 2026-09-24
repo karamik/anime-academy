@@ -1,3 +1,5 @@
+-- Glitch meter controller. All strings in English.
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -6,7 +8,7 @@ local DataStoreManager = require(script.Parent:WaitForChild("DataStoreManager"))
 
 local GlitchController = {}
 
-local TICK_RATE = 1 -- раз в секунду
+local TICK_RATE = 1
 local activePlayers = {}
 
 local function tickPlayer(player)

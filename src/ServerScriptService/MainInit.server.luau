@@ -1,3 +1,5 @@
+-- Server entry point. All strings in English.
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -31,7 +33,7 @@ local function teleportPlayer(player, position)
 end
 
 Players.PlayerAdded:Connect(function(player)
-	print("[Хроно] Подключился:", player.Name)
+	print("[Chrono] Player joined: " .. player.Name)
 
 	player.CharacterAdded:Connect(function(character)
 		local humanoid = character:WaitForChild("Humanoid")

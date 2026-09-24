@@ -1,3 +1,5 @@
+-- Weapon equipping and attack validation. All strings in English.
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 

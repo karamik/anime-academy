@@ -1,6 +1,4 @@
--- Скелет второго босса: Профессор Локус.
--- Без карманов и клонов — они будут добавлены после теста в Studio.
--- Что работает: 3 фазы, телепорт, луч по прямой, самоурон в 3 фазе.
+-- Second boss: Professor Locus. All strings in English.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -121,7 +119,7 @@ local function startPhase1(boss)
 end
 
 local function startPhase2(boss)
-	print("[Локус] Фаза 2 — Схлопывание")
+	print("[Locus] Phase 2 — Collapse")
 
 	local core = boss:FindFirstChild("Core")
 	if core then
@@ -146,7 +144,7 @@ local function startPhase2(boss)
 end
 
 local function startPhase3(boss)
-	print("[Локус] Фаза 3 — Схлопывание в точку")
+	print("[Locus] Phase 3 — Point Singularity")
 
 	local body = boss.PrimaryPart
 	if body then
@@ -183,7 +181,7 @@ local function startPhase3(boss)
 			local timeLeft = LocusLogic.timeToSelfDestruct(elapsed, LocusConfig)
 
 			if timeLeft <= 0 then
-				print("[Локус] Сфера взорвалась!")
+				print("[Locus] Sphere exploded!")
 				for _, player in ipairs(Players:GetPlayers()) do
 					local character = player.Character
 					if character then
@@ -240,7 +238,7 @@ function BossController_Locus.spawn()
 	bindPhaseChanges(model)
 
 	humanoid.Died:Connect(function()
-		print("[Локус] Профессор Локус побеждён")
+		print("[Locus] Professor Locus defeated")
 		task.wait(2)
 		model:Destroy()
 		activeBoss = nil

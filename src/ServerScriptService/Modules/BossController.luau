@@ -1,8 +1,10 @@
+-- First boss: Professor Nyux. All strings in English.
+
 local Players = game:GetService("Players")
 
 local BossController = {}
 
-local BOSS_MAX_HEALTH = 2500
+local BOSS_MAX_HEALTH = 8000
 local PHASE_2_THRESHOLD = 0.6
 local SPAWN_POSITION = Vector3.new(100, 8, 0)
 local TENTACLE_DAMAGE = 15
@@ -44,6 +46,7 @@ local function createBossModel()
 	model.PrimaryPart = body
 	model:SetAttribute("IsGlitchEnemy", true)
 	model:SetAttribute("IsBoss", true)
+	model:SetAttribute("BossId", "Nyux")
 
 	model.Parent = workspace
 	return model, humanoid
@@ -112,7 +115,7 @@ end
 
 local function startPhase2(boss)
 	boss:SetAttribute("Phase", 2)
-	print("[Босс] Переход в фазу 2 — Щупальца")
+	print("[Boss] Phase 2 — Tentacles")
 
 	local core = boss:FindFirstChild("Core")
 	if core then
@@ -154,7 +157,7 @@ function BossController.spawn()
 	end)
 
 	humanoid.Died:Connect(function()
-		print("[Босс] Профессор Нюкс побеждён")
+		print("[Boss] Professor Nyux defeated")
 		task.wait(2)
 		model:Destroy()
 		activeBoss = nil

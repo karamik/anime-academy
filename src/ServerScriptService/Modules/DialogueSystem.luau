@@ -1,3 +1,5 @@
+-- Weapon dialogue system. All strings in English.
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextChatService = game:GetService("TextChatService")
 

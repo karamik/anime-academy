@@ -1,3 +1,5 @@
+-- HUD controller. All strings in English.
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -13,7 +15,7 @@ screenGui.Name = "HUD"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- HP-бар
+-- HP bar
 local hpFrame = Instance.new("Frame")
 hpFrame.Name = "HPFrame"
 hpFrame.Size = UDim2.new(0, 250, 0, 30)
@@ -40,7 +42,7 @@ hpLabel.TextScaled = true
 hpLabel.Text = "HP: 100 / 100"
 hpLabel.Parent = hpFrame
 
--- Шкала Глитча (под HP)
+-- Glitch bar
 local glitchFrame = Instance.new("Frame")
 glitchFrame.Name = "GlitchFrame"
 glitchFrame.Size = UDim2.new(0, 250, 0, 18)
@@ -64,10 +66,10 @@ glitchLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 glitchLabel.TextStrokeTransparency = 0.5
 glitchLabel.Font = Enum.Font.GothamBold
 glitchLabel.TextScaled = true
-glitchLabel.Text = "ГЛИТЧ: 0"
+glitchLabel.Text = "GLITCH: 0"
 glitchLabel.Parent = glitchFrame
 
--- Валюта
+-- Currency
 local currencyFrame = Instance.new("Frame")
 currencyFrame.Name = "CurrencyFrame"
 currencyFrame.Size = UDim2.new(0, 250, 0, 60)
@@ -85,7 +87,7 @@ creditsLabel.TextColor3 = Color3.fromRGB(255, 220, 100)
 creditsLabel.Font = Enum.Font.GothamBold
 creditsLabel.TextScaled = true
 creditsLabel.TextXAlignment = Enum.TextXAlignment.Left
-creditsLabel.Text = "Кредиты: 0"
+creditsLabel.Text = "Credits: 0"
 creditsLabel.Parent = currencyFrame
 
 local codesLabel = Instance.new("TextLabel")
@@ -97,10 +99,10 @@ codesLabel.TextColor3 = Color3.fromRGB(120, 220, 255)
 codesLabel.Font = Enum.Font.GothamBold
 codesLabel.TextScaled = true
 codesLabel.TextXAlignment = Enum.TextXAlignment.Left
-codesLabel.Text = "Глитч-код: 0"
+codesLabel.Text = "Glitch Code: 0"
 codesLabel.Parent = currencyFrame
 
--- Кнопка «Взять квест»
+-- Quest button
 local questButton = Instance.new("TextButton")
 questButton.Name = "QuestButton"
 questButton.Size = UDim2.new(0, 220, 0, 70)
@@ -109,14 +111,14 @@ questButton.BackgroundColor3 = Color3.fromRGB(60, 140, 220)
 questButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 questButton.Font = Enum.Font.GothamBold
 questButton.TextScaled = true
-questButton.Text = "ВЗЯТЬ КВЕСТ"
+questButton.Text = "TAKE QUEST"
 questButton.Parent = screenGui
 
 local questCorner = Instance.new("UICorner")
 questCorner.CornerRadius = UDim.new(0, 12)
 questCorner.Parent = questButton
 
--- Уведомление
+-- Notification
 local notifyLabel = Instance.new("TextLabel")
 notifyLabel.Name = "Notify"
 notifyLabel.Size = UDim2.new(0, 500, 0, 40)
@@ -159,9 +161,7 @@ if player.Character then
 end
 player.CharacterAdded:Connect(bindCharacter)
 
--- Локальная симуляция шкалы Глитча.
--- В реальной игре сервер должен присылать значение,
--- но пока растёт 1.5/сек локально, а сбрасывается при выходе в хаб.
+-- Local glitch simulation
 local glitchValue = 0
 local glitchActive = false
 local glitchColorClear = Color3.fromRGB(180, 100, 255)
@@ -170,7 +170,7 @@ local glitchColorCritical = Color3.fromRGB(255, 40, 40)
 local function updateGlitchUI()
 	local ratio = glitchValue / GlitchMeter.MAX
 	glitchBar.Size = UDim2.new(ratio, 0, 1, 0)
-	glitchLabel.Text = string.format("ГЛИТЧ: %d", math.floor(glitchValue))
+	glitchLabel.Text = string.format("GLITCH: %d", math.floor(glitchValue))
 
 	local stage = GlitchMeter.getStage(glitchValue)
 	if stage == "critical" then
@@ -191,18 +191,18 @@ end)
 
 updateGlitchUI()
 
--- Кнопка квеста
+-- Quest button
 questButton.MouseButton1Click:Connect(function()
-	questButton.Text = "ЗАГРУЗКА..."
+	questButton.Text = "LOADING..."
 	glitchActive = true
 	glitchValue = 0
 	RemoteEvents.GiveQuest:FireServer()
 end)
 
 RemoteEvents.CompleteQuest.OnClientEvent:Connect(function()
-	questButton.Text = "ВЗЯТЬ КВЕСТ"
+	questButton.Text = "TAKE QUEST"
 	glitchActive = false
 	glitchValue = 0
 	updateGlitchUI()
-	showNotify("Рейд пройден! Награда получена.")
+	showNotify("Raid complete! Reward received.")
 end)

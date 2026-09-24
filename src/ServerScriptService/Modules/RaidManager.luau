@@ -1,3 +1,5 @@
+-- Raid manager. All strings in English.
+
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local GlitchDrone = require(script.Parent:WaitForChild("GlitchDrone"))
@@ -62,7 +64,6 @@ local function watchBoss(boss, onComplete)
 	end)
 end
 
--- Выбор босса: 50/50 между Нюксом и Локусом
 local function pickBoss()
 	if math.random() < 0.5 then
 		return "Nyux", BossController.spawn()
@@ -73,11 +74,10 @@ end
 
 local function grantRaidReward(player, bossId, droneCredits, droneCodes)
 	if bossId == "Locus" then
-		-- Локус использует свою формулу награды (пока считаем как 1 выживший)
 		local reward = LocusLogic.rewardForRaid(1, LocusConfig)
 		DataStoreManager.addCredits(player, reward.credits)
 		DataStoreManager.addGlitchCode(player, reward.glitchCode)
-		print(string.format("[Raid] Локус побеждён. Награда: %d кредитов, %d кодов, %d осколков",
+		print(string.format("[Raid] Locus defeated. Reward: %d credits, %d codes, %d shards",
 			reward.credits, reward.glitchCode, reward.spaceShard))
 	else
 		local fullCredits = EconomyLogic.rewardForRaid(DRONE_COUNT, true)
@@ -94,7 +94,7 @@ function RaidManager.startRaid(player, onComplete)
 	local drones = spawnDrones(RAID_ORIGIN)
 
 	watchDrones(drones, function()
-		print("[Raid] Дроны зачищены. Спавн босса...")
+		print("[Raid] Drones cleared. Spawning boss...")
 
 		local droneCredits = EconomyLogic.rewardForRaid(DRONE_COUNT, false)
 		local droneCodes = EconomyLogic.glitchCodeForRaid(DRONE_COUNT, false)
@@ -102,10 +102,10 @@ function RaidManager.startRaid(player, onComplete)
 		DataStoreManager.addGlitchCode(player, droneCodes)
 
 		local bossId, boss = pickBoss()
-		print("[Raid] Выпал босс:", bossId)
+		print("[Raid] Boss selected: " .. bossId)
 
 		watchBoss(boss, function()
-			print("[Raid] Босс побеждён. Выдача финальной награды.")
+			print("[Raid] Boss defeated. Granting final reward.")
 			grantRaidReward(player, bossId, droneCredits, droneCodes)
 
 			activeRaids[player.UserId] = nil
