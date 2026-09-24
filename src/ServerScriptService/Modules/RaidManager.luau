@@ -3,6 +3,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GlitchDrone = require(script.Parent:WaitForChild("GlitchDrone"))
 local BossController = require(script.Parent:WaitForChild("BossController"))
 local DataStoreManager = require(script.Parent:WaitForChild("DataStoreManager"))
+local EconomyLogic = require(ReplicatedStorage:WaitForChild("EconomyLogic"))
 
 local RaidManager = {}
 
@@ -66,15 +67,29 @@ function RaidManager.startRaid(player, onComplete)
 
 	watchDrones(drones, function()
 		print("[Raid] Дроны зачищены. Спавн босса...")
-		DataStoreManager.addCredits(player, 50)
-		DataStoreManager.addGlitchCode(player, 3)
+
+		-- Промежуточная награда за дронов (без босса)
+		local droneCredits = EconomyLogic.rewardForRaid(DRONE_COUNT, false)
+		local droneCodes = EconomyLogic.glitchCodeForRaid(DRONE_COUNT, false)
+		DataStoreManager.addCredits(player, droneCredits)
+		DataStoreManager.addGlitchCode(player, droneCodes)
 
 		local boss = BossController.spawn()
 
 		watchBoss(boss, function()
 			print("[Raid] Босс побеждён. Выдача финальной награды.")
-			DataStoreManager.addCredits(player, 100)
-			DataStoreManager.addGlitchCode(player, 5)
+
+			-- Финальная награда: вычитаем уже отданное за дронов,
+			-- добавляем бонус за босса и завершение рейда.
+			local fullCredits = EconomyLogic.rewardForRaid(DRONE_COUNT, true)
+			local fullCodes = EconomyLogic.glitchCodeForRaid(DRONE_COUNT, true)
+
+			local remainingCredits = fullCredits - droneCredits
+			local remainingCodes = fullCodes - droneCodes
+
+			DataStoreManager.addCredits(player, remainingCredits)
+			DataStoreManager.addGlitchCode(player, remainingCodes)
+
 			activeRaids[player.UserId] = nil
 			if onComplete then
 				onComplete()

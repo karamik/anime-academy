@@ -2,6 +2,10 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local RemoteEvents = require(ReplicatedStorage:WaitForChild("RemoteEvents"))
+local WeaponConfig = require(ReplicatedStorage:WaitForChild("WeaponConfig"))
+local WeaponUpgrade = require(ReplicatedStorage:WaitForChild("WeaponUpgrade"))
+local DamageCalculator = require(ReplicatedStorage:WaitForChild("DamageCalculator"))
+local DataStoreManager = require(script.Parent:WaitForChild("DataStoreManager"))
 local WeaponSystem = require(script.Parent:WaitForChild("WeaponSystem"))
 local DialogueSystem = require(script.Parent:WaitForChild("DialogueSystem"))
 
@@ -34,6 +38,19 @@ local function getTargetFromRay(origin, direction, range)
 	return nil
 end
 
+local function getWeaponLevel(player, weaponId)
+	local data = DataStoreManager.get(player)
+	if not data then return 1 end
+	if not data.weaponLevels then return 1 end
+	return data.weaponLevels[weaponId] or 1
+end
+
+local function getGlitchValue(player)
+	local data = DataStoreManager.get(player)
+	if not data then return 0 end
+	return data.glitch or 0
+end
+
 local function applyDamage(target, amount, attacker)
 	local humanoid = target:FindFirstChildOfClass("Humanoid")
 	if not humanoid then return end
@@ -63,7 +80,12 @@ RemoteEvents.UseAbility.OnServerEvent:Connect(function(player)
 	local target = getTargetFromRay(origin, direction, config.range)
 
 	if target then
-		applyDamage(target, config.damage, player)
+		-- Считаем урон через DamageCalculator
+		local level = getWeaponLevel(player, config.id)
+		local glitch = getGlitchValue(player)
+		local damage = DamageCalculator.calculate(config.damage, level, glitch)
+
+		applyDamage(target, damage, player)
 	end
 end)
 

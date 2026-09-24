@@ -1,18 +1,19 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local RemoteEvents = require(ReplicatedStorage:WaitForChild("RemoteEvents"))
+local GlitchMeter = require(ReplicatedStorage:WaitForChild("GlitchMeter"))
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Корневой ScreenGui
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "HUD"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = playerGui
 
--- HP-бар (сверху слева)
+-- HP-бар
 local hpFrame = Instance.new("Frame")
 hpFrame.Name = "HPFrame"
 hpFrame.Size = UDim2.new(0, 250, 0, 30)
@@ -39,7 +40,34 @@ hpLabel.TextScaled = true
 hpLabel.Text = "HP: 100 / 100"
 hpLabel.Parent = hpFrame
 
--- Валюта (сверху справа)
+-- Шкала Глитча (под HP)
+local glitchFrame = Instance.new("Frame")
+glitchFrame.Name = "GlitchFrame"
+glitchFrame.Size = UDim2.new(0, 250, 0, 18)
+glitchFrame.Position = UDim2.new(0, 20, 0, 55)
+glitchFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+glitchFrame.BorderSizePixel = 0
+glitchFrame.Parent = screenGui
+
+local glitchBar = Instance.new("Frame")
+glitchBar.Name = "GlitchBar"
+glitchBar.Size = UDim2.new(0, 0, 1, 0)
+glitchBar.BackgroundColor3 = Color3.fromRGB(180, 100, 255)
+glitchBar.BorderSizePixel = 0
+glitchBar.Parent = glitchFrame
+
+local glitchLabel = Instance.new("TextLabel")
+glitchLabel.Name = "GlitchLabel"
+glitchLabel.Size = UDim2.new(1, 0, 1, 0)
+glitchLabel.BackgroundTransparency = 1
+glitchLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+glitchLabel.TextStrokeTransparency = 0.5
+glitchLabel.Font = Enum.Font.GothamBold
+glitchLabel.TextScaled = true
+glitchLabel.Text = "ГЛИТЧ: 0"
+glitchLabel.Parent = glitchFrame
+
+-- Валюта
 local currencyFrame = Instance.new("Frame")
 currencyFrame.Name = "CurrencyFrame"
 currencyFrame.Size = UDim2.new(0, 250, 0, 60)
@@ -60,19 +88,19 @@ creditsLabel.TextXAlignment = Enum.TextXAlignment.Left
 creditsLabel.Text = "Кредиты: 0"
 creditsLabel.Parent = currencyFrame
 
-local glitchLabel = Instance.new("TextLabel")
-glitchLabel.Name = "GlitchLabel"
-glitchLabel.Size = UDim2.new(1, -10, 0, 28)
-glitchLabel.Position = UDim2.new(0, 10, 0, 30)
-glitchLabel.BackgroundTransparency = 1
-glitchLabel.TextColor3 = Color3.fromRGB(120, 220, 255)
-glitchLabel.Font = Enum.Font.GothamBold
-glitchLabel.TextScaled = true
-glitchLabel.TextXAlignment = Enum.TextXAlignment.Left
-glitchLabel.Text = "Глитч-код: 0"
-glitchLabel.Parent = currencyFrame
+local codesLabel = Instance.new("TextLabel")
+codesLabel.Name = "CodesLabel"
+codesLabel.Size = UDim2.new(1, -10, 0, 28)
+codesLabel.Position = UDim2.new(0, 10, 0, 30)
+codesLabel.BackgroundTransparency = 1
+codesLabel.TextColor3 = Color3.fromRGB(120, 220, 255)
+codesLabel.Font = Enum.Font.GothamBold
+codesLabel.TextScaled = true
+codesLabel.TextXAlignment = Enum.TextXAlignment.Left
+codesLabel.Text = "Глитч-код: 0"
+codesLabel.Parent = currencyFrame
 
--- Кнопка «Взять квест» (снизу слева)
+-- Кнопка «Взять квест»
 local questButton = Instance.new("TextButton")
 questButton.Name = "QuestButton"
 questButton.Size = UDim2.new(0, 220, 0, 70)
@@ -88,7 +116,7 @@ local questCorner = Instance.new("UICorner")
 questCorner.CornerRadius = UDim.new(0, 12)
 questCorner.Parent = questButton
 
--- Уведомление (по центру снизу)
+-- Уведомление
 local notifyLabel = Instance.new("TextLabel")
 notifyLabel.Name = "Notify"
 notifyLabel.Size = UDim2.new(0, 500, 0, 40)
@@ -111,14 +139,15 @@ local function showNotify(text)
 	end)
 end
 
--- Обновление HP
+-- HP
 local function bindCharacter(character)
 	local humanoid = character:WaitForChild("Humanoid")
 
 	local function update()
 		local ratio = humanoid.Health / humanoid.MaxHealth
 		hpBar.Size = UDim2.new(ratio, 0, 1, 0)
-		hpLabel.Text = string.format("HP: %d / %d", math.floor(humanoid.Health), math.floor(humanoid.MaxHealth))
+		hpLabel.Text = string.format("HP: %d / %d",
+			math.floor(humanoid.Health), math.floor(humanoid.MaxHealth))
 	end
 
 	humanoid.HealthChanged:Connect(update)
@@ -130,22 +159,50 @@ if player.Character then
 end
 player.CharacterAdded:Connect(bindCharacter)
 
+-- Локальная симуляция шкалы Глитча.
+-- В реальной игре сервер должен присылать значение,
+-- но пока растёт 1.5/сек локально, а сбрасывается при выходе в хаб.
+local glitchValue = 0
+local glitchActive = false
+local glitchColorClear = Color3.fromRGB(180, 100, 255)
+local glitchColorCritical = Color3.fromRGB(255, 40, 40)
+
+local function updateGlitchUI()
+	local ratio = glitchValue / GlitchMeter.MAX
+	glitchBar.Size = UDim2.new(ratio, 0, 1, 0)
+	glitchLabel.Text = string.format("ГЛИТЧ: %d", math.floor(glitchValue))
+
+	local stage = GlitchMeter.getStage(glitchValue)
+	if stage == "critical" then
+		glitchBar.BackgroundColor3 = glitchColorCritical
+	elseif stage == "distortion" then
+		glitchBar.BackgroundColor3 = Color3.fromRGB(220, 60, 180)
+	else
+		glitchBar.BackgroundColor3 = glitchColorClear
+	end
+end
+
+RunService.Heartbeat:Connect(function(dt)
+	if glitchActive then
+		glitchValue = GlitchMeter.grow(glitchValue, GlitchMeter.BASE_GROWTH * dt)
+		updateGlitchUI()
+	end
+end)
+
+updateGlitchUI()
+
 -- Кнопка квеста
 questButton.MouseButton1Click:Connect(function()
 	questButton.Text = "ЗАГРУЗКА..."
+	glitchActive = true
+	glitchValue = 0
 	RemoteEvents.GiveQuest:FireServer()
 end)
 
--- Завершение квеста
 RemoteEvents.CompleteQuest.OnClientEvent:Connect(function()
 	questButton.Text = "ВЗЯТЬ КВЕСТ"
+	glitchActive = false
+	glitchValue = 0
+	updateGlitchUI()
 	showNotify("Рейд пройден! Награда получена.")
-end)
-
--- Обновление валюты (заглушка до серверного события)
-task.spawn(function()
-	while true do
-		task.wait(1)
-		-- позже заменим на реальное обновление с сервера
-	end
 end)

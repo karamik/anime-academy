@@ -8,6 +8,8 @@ local DEFAULT_DATA = {
 	glitchCode = 0,
 	ownedWeapons = {},
 	equippedWeapon = nil,
+	weaponLevels = {},
+	glitch = 0,
 	questStage = 0,
 }
 
@@ -72,6 +74,14 @@ function DataStoreManager.addCredits(player, amount)
 	data.credits = data.credits + amount
 end
 
+function DataStoreManager.spendCredits(player, amount)
+	local data = cache[player.UserId]
+	if not data then return false end
+	if data.credits < amount then return false end
+	data.credits = data.credits - amount
+	return true
+end
+
 function DataStoreManager.addGlitchCode(player, amount)
 	local data = cache[player.UserId]
 	if not data then return end
@@ -84,6 +94,9 @@ function DataStoreManager.giveWeapon(player, weaponId)
 	if not table.find(data.ownedWeapons, weaponId) then
 		table.insert(data.ownedWeapons, weaponId)
 	end
+	if not data.weaponLevels[weaponId] then
+		data.weaponLevels[weaponId] = 1
+	end
 end
 
 function DataStoreManager.equipWeapon(player, weaponId)
@@ -92,6 +105,32 @@ function DataStoreManager.equipWeapon(player, weaponId)
 	if table.find(data.ownedWeapons, weaponId) then
 		data.equippedWeapon = weaponId
 	end
+end
+
+function DataStoreManager.getWeaponLevel(player, weaponId)
+	local data = cache[player.UserId]
+	if not data then return 1 end
+	if not data.weaponLevels then return 1 end
+	return data.weaponLevels[weaponId] or 1
+end
+
+function DataStoreManager.setWeaponLevel(player, weaponId, level)
+	local data = cache[player.UserId]
+	if not data then return end
+	if not data.weaponLevels then data.weaponLevels = {} end
+	data.weaponLevels[weaponId] = level
+end
+
+function DataStoreManager.setGlitch(player, value)
+	local data = cache[player.UserId]
+	if not data then return end
+	data.glitch = value
+end
+
+function DataStoreManager.getGlitch(player)
+	local data = cache[player.UserId]
+	if not data then return 0 end
+	return data.glitch or 0
 end
 
 Players.PlayerAdded:Connect(function(player)
