@@ -29,6 +29,7 @@ run_test "Economy" "tests/test_economy.luau"
 run_test "GlitchMeter" "tests/test_glitch_meter.luau"
 run_test "WeaponUpgrade" "tests/test_weapon_upgrade.luau"
 run_test "DamageCalculator" "tests/test_damage_calculator.luau"
+run_test "Locus Logic" "tests/test_locus_logic.luau"
 
 echo "================================"
 echo "  Файлов прошло: $total_passed"
