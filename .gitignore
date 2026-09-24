@@ -1,0 +1,6 @@
+game.rbxlx
+*.rbxlx
+*.rbxl
+*.rbxlx.lock
+*.rbxl.lock
+.DS_Store
