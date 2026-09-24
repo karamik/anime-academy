@@ -5,6 +5,7 @@ local BossController = {}
 local BOSS_MAX_HEALTH = 500
 local PHASE_2_THRESHOLD = 0.6
 local SPAWN_POSITION = Vector3.new(100, 8, 0)
+local TENTACLE_DAMAGE = 15
 
 local activeBoss = nil
 
@@ -29,6 +30,10 @@ local function createBossModel()
 
 	local head = makePart("Head", Vector3.new(3, 3, 3), Color3.fromRGB(255, 220, 60), model)
 	head.CFrame = CFrame.new(SPAWN_POSITION + Vector3.new(0, 4.5, 0))
+
+	local core = makePart("Core", Vector3.new(1.5, 1.5, 1.5), Color3.fromRGB(255, 80, 80), model)
+	core.CFrame = CFrame.new(SPAWN_POSITION + Vector3.new(0, 0, -2.5))
+	core:SetAttribute("IsBossCore", true)
 
 	local humanoid = Instance.new("Humanoid")
 	humanoid.MaxHealth = BOSS_MAX_HEALTH
@@ -81,10 +86,54 @@ local function startPhase1(boss)
 	end)
 end
 
+local function spawnTentacle(boss)
+	local angle = math.random() * math.pi * 2
+	local radius = math.random(10, 20)
+	local offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+	local pos = boss.PrimaryPart.Position + offset
+
+	local tentacle = makePart("Tentacle", Vector3.new(1, 6, 1), Color3.fromRGB(20, 0, 40), boss)
+	tentacle.CFrame = CFrame.new(pos)
+
+	tentacle.Touched:Connect(function(hit)
+		local char = hit:FindFirstAncestorOfClass("Model")
+		if not char then return end
+		local hum = char:FindFirstChildOfClass("Humanoid")
+		if hum and hum.Health > 0 then
+			hum:TakeDamage(TENTACLE_DAMAGE)
+		end
+	end)
+
+	task.wait(4)
+	if tentacle.Parent then
+		tentacle:Destroy()
+	end
+end
+
+local function startPhase2(boss)
+	boss:SetAttribute("Phase", 2)
+	print("[Босс] Переход в фазу 2 — Щупальца")
+
+	local core = boss:FindFirstChild("Core")
+	if core then
+		core.Color = Color3.fromRGB(255, 30, 30)
+	end
+
+	task.spawn(function()
+		while boss.Parent and boss:GetAttribute("Phase") == 2 do
+			task.wait(2)
+			if not boss.Parent then break end
+			for i = 1, 3 do
+				spawnTentacle(boss)
+				task.wait(0.3)
+			end
+		end
+	end)
+end
+
 local function onPhaseChange(boss, phase)
 	if phase == 2 then
-		boss:SetAttribute("Phase", 2)
-		print("[Босс] Переход в фазу 2 — Щупальца")
+		startPhase2(boss)
 	end
 end
 
