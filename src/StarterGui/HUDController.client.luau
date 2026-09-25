@@ -1,4 +1,5 @@
--- HUD controller. All strings in English.
+-- HUD controller. Reads player attributes directly (no RemoteEvents for stats).
+-- All strings in English.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +14,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "HUD"
 screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
 screenGui.Parent = playerGui
 
 -- HP bar
@@ -161,48 +163,48 @@ if player.Character then
 end
 player.CharacterAdded:Connect(bindCharacter)
 
--- Local glitch simulation
-local glitchValue = 0
-local glitchActive = false
-local glitchColorClear = Color3.fromRGB(180, 100, 255)
-local glitchColorCritical = Color3.fromRGB(255, 40, 40)
+-- Read stats from attributes
+local function updateCredits()
+	local credits = player:GetAttribute("Credits") or 0
+	creditsLabel.Text = "Credits: " .. tostring(credits)
+end
 
-local function updateGlitchUI()
-	local ratio = glitchValue / GlitchMeter.MAX
+local function updateCodes()
+	local codes = player:GetAttribute("GlitchCode") or 0
+	codesLabel.Text = "Glitch Code: " .. tostring(codes)
+end
+
+local function updateGlitchFromAttribute()
+	local value = player:GetAttribute("Glitch") or 0
+	local ratio = value / GlitchMeter.MAX
 	glitchBar.Size = UDim2.new(ratio, 0, 1, 0)
-	glitchLabel.Text = string.format("GLITCH: %d", math.floor(glitchValue))
+	glitchLabel.Text = string.format("GLITCH: %d", math.floor(value))
 
-	local stage = GlitchMeter.getStage(glitchValue)
+	local stage = GlitchMeter.getStage(value)
 	if stage == "critical" then
-		glitchBar.BackgroundColor3 = glitchColorCritical
+		glitchBar.BackgroundColor3 = Color3.fromRGB(255, 40, 40)
 	elseif stage == "distortion" then
 		glitchBar.BackgroundColor3 = Color3.fromRGB(220, 60, 180)
 	else
-		glitchBar.BackgroundColor3 = glitchColorClear
+		glitchBar.BackgroundColor3 = Color3.fromRGB(180, 100, 255)
 	end
 end
 
-RunService.Heartbeat:Connect(function(dt)
-	if glitchActive then
-		glitchValue = GlitchMeter.grow(glitchValue, GlitchMeter.BASE_GROWTH * dt)
-		updateGlitchUI()
-	end
-end)
+player:GetAttributeChangedSignal("Credits"):Connect(updateCredits)
+player:GetAttributeChangedSignal("GlitchCode"):Connect(updateCodes)
+player:GetAttributeChangedSignal("Glitch"):Connect(updateGlitchFromAttribute)
 
-updateGlitchUI()
+updateCredits()
+updateCodes()
+updateGlitchFromAttribute()
 
 -- Quest button
 questButton.MouseButton1Click:Connect(function()
 	questButton.Text = "LOADING..."
-	glitchActive = true
-	glitchValue = 0
 	RemoteEvents.GiveQuest:FireServer()
 end)
 
 RemoteEvents.CompleteQuest.OnClientEvent:Connect(function()
 	questButton.Text = "TAKE QUEST"
-	glitchActive = false
-	glitchValue = 0
-	updateGlitchUI()
 	showNotify("Raid complete! Reward received.")
 end)

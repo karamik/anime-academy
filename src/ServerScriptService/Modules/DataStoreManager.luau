@@ -1,4 +1,5 @@
--- Player data persistence. All strings in English.
+-- Player data persistence + attribute sync. All strings in English.
+-- Attributes are used by HUD (client reads them directly, no RemoteEvents needed).
 
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
@@ -13,6 +14,8 @@ local DEFAULT_DATA = {
 	weaponLevels = {},
 	glitch = 0,
 	questStage = 0,
+	level = 1,
+	experience = 0,
 }
 
 local DataStoreManager = {}
@@ -29,6 +32,16 @@ local function deepCopy(t)
 		end
 	end
 	return copy
+end
+
+-- Sync data to player attributes so client HUD can read them
+local function syncAttributes(player, data)
+	player:SetAttribute("Credits", data.credits)
+	player:SetAttribute("GlitchCode", data.glitchCode)
+	player:SetAttribute("Glitch", data.glitch)
+	player:SetAttribute("ActiveWeapon", data.equippedWeapon or "")
+	player:SetAttribute("Level", data.level)
+	player:SetAttribute("Experience", data.experience)
 end
 
 local function loadData(player)
@@ -74,6 +87,7 @@ function DataStoreManager.addCredits(player, amount)
 	local data = cache[player.UserId]
 	if not data then return end
 	data.credits = data.credits + amount
+	syncAttributes(player, data)
 end
 
 function DataStoreManager.spendCredits(player, amount)
@@ -81,6 +95,7 @@ function DataStoreManager.spendCredits(player, amount)
 	if not data then return false end
 	if data.credits < amount then return false end
 	data.credits = data.credits - amount
+	syncAttributes(player, data)
 	return true
 end
 
@@ -88,6 +103,7 @@ function DataStoreManager.addGlitchCode(player, amount)
 	local data = cache[player.UserId]
 	if not data then return end
 	data.glitchCode = data.glitchCode + amount
+	syncAttributes(player, data)
 end
 
 function DataStoreManager.giveWeapon(player, weaponId)
@@ -106,6 +122,7 @@ function DataStoreManager.equipWeapon(player, weaponId)
 	if not data then return end
 	if table.find(data.ownedWeapons, weaponId) then
 		data.equippedWeapon = weaponId
+		syncAttributes(player, data)
 	end
 end
 
@@ -126,7 +143,8 @@ end
 function DataStoreManager.setGlitch(player, value)
 	local data = cache[player.UserId]
 	if not data then return end
-	data.glitch = value
+	data.glitch = math.clamp(value, 0, 100)
+	syncAttributes(player, data)
 end
 
 function DataStoreManager.getGlitch(player)
@@ -135,8 +153,21 @@ function DataStoreManager.getGlitch(player)
 	return data.glitch or 0
 end
 
+function DataStoreManager.addExperience(player, amount)
+	local data = cache[player.UserId]
+	if not data then return end
+	data.experience = data.experience + amount
+	-- Simple level curve: 100 exp per level
+	while data.experience >= data.level * 100 do
+		data.experience = data.experience - data.level * 100
+		data.level = data.level + 1
+	end
+	syncAttributes(player, data)
+end
+
 Players.PlayerAdded:Connect(function(player)
 	cache[player.UserId] = loadData(player)
+	syncAttributes(player, cache[player.UserId])
 	print("[DataStore] Loaded for", player.Name)
 end)
 

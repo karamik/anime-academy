@@ -66,7 +66,7 @@ end
 
 local function pickBoss()
 	if math.random() < 0.5 then
-		return "Nyux", BossController.spawn()
+		return "Nyx", BossController.spawn()
 	else
 		return "Locus", BossController_Locus.spawn()
 	end

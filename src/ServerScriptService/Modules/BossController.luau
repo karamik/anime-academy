@@ -1,4 +1,4 @@
--- First boss: Professor Nyux. All strings in English.
+-- First boss: Professor Nyx. All strings in English.
 
 local Players = game:GetService("Players")
 
@@ -25,7 +25,7 @@ end
 
 local function createBossModel()
 	local model = Instance.new("Model")
-	model.Name = "ProfessorNyux"
+	model.Name = "ProfessorNyx"
 
 	local body = makePart("Body", Vector3.new(4, 6, 4), Color3.fromRGB(80, 60, 140), model)
 	body.CFrame = CFrame.new(SPAWN_POSITION)
@@ -46,7 +46,7 @@ local function createBossModel()
 	model.PrimaryPart = body
 	model:SetAttribute("IsGlitchEnemy", true)
 	model:SetAttribute("IsBoss", true)
-	model:SetAttribute("BossId", "Nyux")
+	model:SetAttribute("BossId", "Nyx")
 
 	model.Parent = workspace
 	return model, humanoid
@@ -157,7 +157,7 @@ function BossController.spawn()
 	end)
 
 	humanoid.Died:Connect(function()
-		print("[Boss] Professor Nyux defeated")
+		print("[Boss] Professor Nyx defeated")
 		task.wait(2)
 		model:Destroy()
 		activeBoss = nil
